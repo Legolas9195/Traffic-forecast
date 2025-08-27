@@ -10,9 +10,15 @@ from io import BytesIO
 # -----------------------------
 st.title("Traffic Forecast with Customer Adjustment")
 
-# User inputs
-HIST_CUSTOMER_DROP = st.number_input("Historical customer drop/increases (used for scaling)", value=425_000, step=10_000)
-FORECAST_CUSTOMER_DROP = st.number_input("Expected customer drop/increases during forecast period", value=200_000, step=10_000)
+# User inputs (with +/– clarification)
+HIST_CUSTOMER_DROP = st.number_input(
+    "Historical customer drop/increases (used for scaling) (+ for increase, – for drop)",
+    value=425_000, step=10_000
+)
+FORECAST_CUSTOMER_DROP = st.number_input(
+    "Expected customer drop/increases during forecast period (+ for increase, – for drop)",
+    value=200_000, step=10_000
+)
 FORECAST_DAYS = st.number_input("Forecast horizon (days)", value=120, step=10)
 SEASONAL_PERIODS = st.number_input("Seasonal periods (e.g., 30 for daily data)", value=30, step=1)
 
@@ -64,7 +70,10 @@ if uploaded_file:
     fig, ax = plt.subplots(figsize=(12, 6))
     ax.plot(series.index, series.values, label="Historical")
     ax.plot(forecast_df["time_sec"], forecast_df["Forecast_raw"], "--", label="HW Forecast (raw)")
-    ax.plot(forecast_df["time_sec"], forecast_df["Adjusted"], label="Adjusted Forecast (with customer drop/increase)")
+    ax.plot(
+        forecast_df["time_sec"], forecast_df["Adjusted"],
+        label="Adjusted Forecast (with customer change: + increase, – drop)"
+    )
     ax.set_xlabel("Date")
     ax.set_ylabel("Traffic")
     ax.legend()
@@ -80,4 +89,4 @@ if uploaded_file:
 
     # Info
     st.write(f"Estimated traffic change per customer: {traffic_per_customer:.6f}")
-    st.write(f"Applied expected customer drop/increase: {FORECAST_CUSTOMER_DROP:,} customers")
+    st.write(f"Applied expected customer change: {FORECAST_CUSTOMER_DROP:,} customers (+ increase, – drop)")
